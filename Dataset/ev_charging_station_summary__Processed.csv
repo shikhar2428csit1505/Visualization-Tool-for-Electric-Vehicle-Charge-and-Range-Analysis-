@@ -1,0 +1,162 @@
+Region,state,type,Station_Count
+Central,Chhattisgarh,6.0,2
+Central,Chhattisgarh,7.0,8
+Central,Chhattisgarh,8.0,2
+Central,Madhya Pradesh,6.0,5
+Central,Madhya Pradesh,7.0,12
+Central,Madhya Pradesh,13.0,3
+East,Bihar,6.0,3
+East,Bihar,7.0,6
+East,Jharkhand,6.0,4
+East,Jharkhand,7.0,16
+East,Jharkhand,8.0,2
+East,Odisha,6.0,4
+East,Odisha,7.0,34
+East,West Bengal,6.0,13
+East,West Bengal,7.0,30
+East,West Bengal,8.0,10
+North,Chandigarh,6.0,2
+North,Delhi,6.0,24
+North,Delhi,7.0,22
+North,Delhi,8.0,59
+North,Delhi,12.0,9
+North,Delhi,13.0,1
+North,Delhi,14.0,2
+North,Delhi,16.0,6
+North,Delhi,20.0,2
+North,Haryana,6.0,9
+North,Haryana,7.0,10
+North,Haryana,8.0,2
+North,Haryana,12.0,24
+North,Haryana,13.0,8
+North,Haryana,14.0,1
+North,Haryana,16.0,2
+North,Haryana,20.0,2
+North,Haryana,22.0,1
+North,Himachal Pradesh,7.0,1
+North,Himachal Pradesh,12.0,5
+North,Jammu and Kashmir,12.0,1
+North,Punjab,6.0,9
+North,Punjab,7.0,4
+North,Punjab,12.0,1
+North,Punjab,20.0,1
+North,Uttar Pradesh,6.0,11
+North,Uttar Pradesh,7.0,48
+North,Uttar Pradesh,8.0,15
+North,Uttar Pradesh,12.0,9
+North,Uttar Pradesh,13.0,1
+North,Uttar Pradesh,22.0,1
+North,Uttar Pradesh,24.0,1
+North,Uttarakhand,6.0,2
+North,Uttarakhand,7.0,15
+North,Uttarakhand,12.0,4
+North-East,Assam,7.0,10
+North-East,Sikkim,7.0,2
+North-East,Tripura,7.0,1
+Other,Andaman,7.0,1
+Other,Andhra Pradesh ,19.0,1
+Other,Andhra pradesh,6.0,6
+Other,Andhra pradesh,7.0,16
+Other,Andhra pradesh,19.0,2
+Other,AndhraPradesh,6.0,1
+Other,Andra Pradesh,21.0,2
+Other,Bhubhaneswar,7.0,1
+Other,Chattisgarh,7.0,4
+Other,Chikhali,24.0,1
+Other,Delhi NCR,7.0,43
+Other,Delhi NCR,8.0,6
+Other,Delhi NCR,14.0,1
+Other,Delhi NCR,20.0,2
+Other,Delhi NCR,22.0,1
+Other,Ernakulam,7.0,1
+Other,Harayana,6.0,1
+Other,Hisar,7.0,1
+Other,Hyderabad,7.0,1
+Other,Hyderabadu00a0,6.0,1
+Other,Jajpur,7.0,1
+Other,Jammu,6.0,2
+Other,Jammu,7.0,1
+Other,Jammu & Kashmir,6.0,1
+Other,Jammu & Kashmir,7.0,2
+Other,Karala,11.0,1
+Other,Kochi,7.0,1
+Other,Limbdi,24.0,1
+Other,Maharashra,7.0,5
+Other,PUNJAB,7.0,8
+Other,PUNJAB,20.0,1
+Other,Pondicherry,6.0,1
+Other,Puducherry,6.0,1
+Other,Puducherry,7.0,1
+Other,Rajahmundry,7.0,1
+Other,TAMIL NADU,10.0,10
+Other,TAMIL NADU,23.0,10
+Other,TELENGANA,20.0,5
+Other,TamiNadu,6.0,1
+Other,TamilNadu,6.0,7
+Other,Uttarakhand ,7.0,2
+Other,Uttarkhand,7.0,1
+Other,Uttrakhand,6.0,1
+Other,Uttrakhand,7.0,1
+Other,WestBengal,6.0,3
+Other,chattisgarh,7.0,2
+South,Andhra Pradesh,6.0,5
+South,Andhra Pradesh,7.0,24
+South,Andhra Pradesh,11.0,1
+South,Andhra Pradesh,19.0,1
+South,Karnataka,6.0,18
+South,Karnataka,7.0,31
+South,Karnataka,8.0,3
+South,Karnataka,11.0,12
+South,Karnataka,12.0,18
+South,Karnataka,13.0,8
+South,Karnataka,15.0,25
+South,Karnataka,16.0,14
+South,Karnataka,18.0,1
+South,Karnataka,20.0,2
+South,Karnataka,24.0,1
+South,Kerala,6.0,21
+South,Kerala,7.0,24
+South,Kerala,8.0,8
+South,Kerala,11.0,13
+South,Kerala,16.0,11
+South,Kerala,17.0,9
+South,Kerala,19.0,5
+South,Tamil Nadu,6.0,24
+South,Tamil Nadu,7.0,43
+South,Tamil Nadu,8.0,18
+South,Tamil Nadu,11.0,38
+South,Tamil Nadu,12.0,3
+South,Tamil Nadu,16.0,7
+South,Tamil Nadu,19.0,22
+South,Telangana,6.0,24
+South,Telangana,7.0,29
+South,Telangana,8.0,4
+South,Telangana,12.0,4
+South,Telangana,13.0,1
+South,Telangana,18.0,2
+South,Telangana,20.0,5
+South,Telangana,21.0,6
+West,Goa,6.0,3
+West,Goa,7.0,2
+West,Goa,8.0,1
+West,Goa,12.0,1
+West,Goa,16.0,1
+West,Gujarat,6.0,13
+West,Gujarat,7.0,46
+West,Gujarat,8.0,2
+West,Gujarat,12.0,5
+West,Gujarat,18.0,2
+West,Gujarat,20.0,2
+West,Gujarat,24.0,5
+West,Maharashtra,6.0,69
+West,Maharashtra,7.0,128
+West,Maharashtra,8.0,3
+West,Maharashtra,12.0,30
+West,Maharashtra,13.0,2
+West,Maharashtra,18.0,15
+West,Maharashtra,21.0,2
+West,Maharashtra,24.0,8
+West,Rajasthan,6.0,14
+West,Rajasthan,7.0,41
+West,Rajasthan,12.0,12
+West,Rajasthan,24.0,1
