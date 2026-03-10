@@ -1,6 +1,8 @@
 # ⚡ Visualization Tool for Electric Vehicle Charge and Range Analysis
 
-![Project Banner](Tableau_Images/Tableau_logo.png)
+<p align="center">
+  <img src="Tableau_logo.png" alt="Tableau Logo" width="400"/>
+</p>
 
 > An interactive Tableau-powered dashboard for analyzing EV charging patterns, battery performance, and real-world range efficiency.
 
