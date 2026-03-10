@@ -1,144 +1,1331 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EV Pulse — Charge & Range Analytics</title>
+  <meta name="description" content="Interactive visualization tool for electric vehicle charge and range analysis" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #0d1520;
+      --surface2: #111c2e;
+      --accent: #00e5ff;
+      --accent2: #7cfc00;
+      --accent3: #ff6b35;
+      --text: #e8f4f8;
+      --text-muted: #6a8fa8;
+      --border: rgba(0, 229, 255, 0.12);
+      --glow: 0 0 40px rgba(0, 229, 255, 0.15);
+    }
 
-<title>Electric Vehicle Analytics Dashboard</title>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<meta name="description" content="EV Charging and Range Analysis Dashboard" />
-<meta name="keywords" content="electric vehicle, EV analytics, charging patterns, tableau dashboard" />
+    html { scroll-behavior: smooth; }
 
-<link href="assets/img/favicon.png" rel="icon" />
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
 
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
-<link href="assets/css/main.css" rel="stylesheet" />
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(0,229,255,0.5);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.18s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    }
 
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      background: rgba(7, 11, 18, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--accent2);
+      border: 1px solid rgba(124,252,0,0.3);
+      padding: 0.35rem 0.85rem;
+      border-radius: 2rem;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-dot {
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 7rem 3rem 4rem;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .orb1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%);
+      top: -200px; right: -100px;
+      animation: float1 8s ease-in-out infinite;
+    }
+
+    .orb2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(124,252,0,0.08) 0%, transparent 70%);
+      bottom: -100px; left: 10%;
+      animation: float2 10s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(-30px, 30px); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(20px, -20px); }
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 1300px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+
+    .hero-title .line2 { color: var(--accent); }
+    .hero-title .line3 { color: var(--text-muted); font-size: 0.65em; font-weight: 600; }
+
+    .hero-desc {
+      font-size: 0.88rem;
+      line-height: 1.85;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 480px;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 2rem;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover::after { opacity: 0.15; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,255,0.4); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 2rem;
+      background: transparent;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: all 0.25s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* STATS */
+    .hero-stats {
+      animation: fadeUp 0.8s 0.4s ease both;
+    }
+
+    .stats-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    }
+
+    .stats-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-item {}
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.green { color: var(--accent2); }
+    .stat-value.orange { color: var(--accent3); }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      letter-spacing: 0.05em;
+    }
+
+    .battery-visual {
+      margin-top: 1rem;
+    }
+
+    .battery-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .battery-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .battery-fill {
+      height: 100%;
+      border-radius: 4px;
+      animation: chargeUp 2s 1s ease both;
+    }
+
+    @keyframes chargeUp {
+      from { width: 0 !important; }
+    }
+
+    .fill-85 { width: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+    .fill-72 { width: 77%; background: linear-gradient(90deg, var(--accent), #0099cc); }
+    .fill-91 { width: 63%; background: linear-gradient(90deg, var(--accent2), #88ff00); }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.3rem 0.7rem;
+      border-radius: 3px;
+    }
+
+    /* SECTIONS */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 6rem 3rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .section-title .muted { color: var(--text-muted); }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 2.5rem;
+      transition: background 0.25s;
+      position: relative;
+    }
+
+    .feature-card:hover { background: var(--surface2); }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .icon-cyan { background: rgba(0,229,255,0.1); color: var(--accent); }
+    .icon-green { background: rgba(124,252,0,0.1); color: var(--accent2); }
+    .icon-orange { background: rgba(255,107,53,0.1); color: var(--accent3); }
+
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    /* DASHBOARD SECTION */
+    .dashboard-section {
+      padding: 2rem 3rem 6rem;
+      position: relative;
+    }
+
+    .dashboard-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .dashboard-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding: 1.5rem 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .dashboard-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .db-title-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .db-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .db-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .db-chip {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 2rem;
+      border: 1px solid;
+    }
+
+    .chip-live {
+      color: var(--accent2);
+      border-color: rgba(124,252,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chip-tableau {
+      color: var(--accent);
+      border-color: rgba(0,229,255,0.3);
+    }
+
+    .tableau-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tableau-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+      gap: 1rem;
+    }
+
+    .loading-ring {
+      width: 48px; height: 48px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tableau-frame {
+      width: 100%;
+      min-height: 800px;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeUp 1s 1s ease both;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollDown 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    .scroll-text {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* HORIZONTAL MARQUEE */
+    .marquee-section {
+      overflow: hidden;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,229,255,0.02);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 4rem;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .marquee-dot { color: var(--accent); }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* TEAM SECTION */
+    .team-section {
+      padding: 6rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-section::before {
+      content: '';
+      position: absolute;
+      bottom: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,252,0,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .team-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .college-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: 0.6rem 1.4rem;
+      margin-bottom: 3rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .college-badge .badge-icon {
+      font-size: 1rem;
+    }
+
+    .college-badge strong {
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      text-align: center;
+    }
+
+    .team-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .team-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), #0099cc); }
+    .team-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent2), #44cc00); }
+    .team-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent3), #ff4400); }
+    .team-card:nth-child(4)::before { background: linear-gradient(90deg, #a855f7, #6366f1); }
+
+    .team-card:hover {
+      border-color: rgba(0,229,255,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .team-card:hover::before { opacity: 1; }
+
+    .team-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 1.25rem;
+      display: grid;
+      place-items: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      position: relative;
+    }
+
+    .avatar-1 { background: radial-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.05)); border: 2px solid rgba(0,229,255,0.3); color: var(--accent); }
+    .avatar-2 { background: radial-gradient(135deg, rgba(124,252,0,0.2), rgba(124,252,0,0.05)); border: 2px solid rgba(124,252,0,0.3); color: var(--accent2); }
+    .avatar-3 { background: radial-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05)); border: 2px solid rgba(255,107,53,0.3); color: var(--accent3); }
+    .avatar-4 { background: radial-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05)); border: 2px solid rgba(168,85,247,0.3); color: #a855f7; }
+
+    .member-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .member-roll {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 1.25rem;
+      word-break: break-all;
+    }
+
+    .member-divider {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 1.25rem;
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .info-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .info-value {
+      font-size: 0.75rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+    }
+
+    .member-tag {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 2rem;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* MOBILE */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-badge { display: none; }
+      .hero { padding: 6rem 1.5rem 5rem; }
+      .hero-content { grid-template-columns: 1fr; gap: 3rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .dashboard-section { padding: 2rem 1.5rem 4rem; }
+      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      footer { flex-direction: column; gap: 1.5rem; padding: 2rem 1.5rem; }
+      .features { padding: 4rem 1.5rem; }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .team-section { padding: 4rem 1.5rem; }
+    }
+
+    @media (max-width: 540px) {
+      .team-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
+<body>
 
-<body class="index-page">
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-<header id="header" class="header d-flex align-items-center fixed-top">
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#home" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">EV<span>Pulse</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home" class="active" id="nav-overview">Overview</a></li>
+      <li><a href="#features" id="nav-features">Insights</a></li>
+      <li><a href="#dashboard" id="nav-dashboard">Dashboard</a></li>
+      <li><a href="#team" id="nav-team">Team</a></li>
+    </ul>
+    <div class="nav-badge">
+      <div class="pulse-dot"></div>
+      Live Tableau
+    </div>
+  </nav>
 
-<div class="container-fluid container-xl position-relative d-flex align-items-center">
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
 
-<a href="#home" class="logo d-flex align-items-center me-auto">
-<h1 class="sitename">EV Analytics</h1>
-</a>
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-label">
+          ⚡ Data Analytics Project
+        </div>
+        <h1 class="hero-title">
+          Visualizing<br>
+          <span class="line2">EV Charge</span><br>
+          <span class="line3">& Range Patterns</span>
+        </h1>
+        <p class="hero-desc">
+          An interactive analytics platform that decodes the behavior of electric vehicles — from charging cycles and battery degradation to real-world range efficiency. Powered by Tableau, built to inform fleet managers, researchers, and EV adopters alike.
+        </p>
+        <div class="hero-actions">
+          <a href="#dashboard" class="btn-primary">
+            ⚡ Open Dashboard
+          </a>
+          <a href="#features" class="btn-secondary">
+            Explore Insights →
+          </a>
+        </div>
+        <div class="tech-tags">
+          <span class="tag">Tableau</span>
+          <span class="tag">Data Visualization</span>
+          <span class="tag">Battery Analytics</span>
+          <span class="tag">Fleet Intelligence</span>
+          <span class="tag">Range Modeling</span>
+        </div>
+      </div>
 
-<nav id="navmenu" class="navmenu">
+      <div class="hero-stats">
+        <div class="stats-card">
+          <div class="stats-title">// Real Data · 103 EV Models · Top Range Leaders</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value accent">189</div>
+              <div class="stat-label">Avg. Efficiency (Wh/km)</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value green">210 mi</div>
+              <div class="stat-label">Avg. Range Per Charge</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value orange">457</div>
+              <div class="stat-label">Avg. Fast Charge (km/h)</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">103</div>
+              <div class="stat-label">EV Models Analyzed</div>
+            </div>
+          </div>
+          <div class="battery-visual">
+            <div class="battery-label"><span>Tesla Roadster</span><span>970 km</span></div>
+            <div class="battery-bar"><div class="battery-fill fill-85"></div></div>
+            <div class="battery-label"><span>Tesla Cybertruck</span><span>750 km</span></div>
+            <div class="battery-bar"><div class="battery-fill fill-72"></div></div>
+            <div class="battery-label"><span>Lucid Air</span><span>610 km</span></div>
+            <div class="battery-bar"><div class="battery-fill fill-91"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<ul>
-<li><a href="#home" class="active">Overview</a></li>
-<li><a href="#dashboard">Dashboard</a></li>
-</ul>
+    <div class="scroll-indicator">
+      <span class="scroll-text">Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
 
-<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span class="marquee-item"><span class="marquee-dot">●</span> Battery Degradation Modeling</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Charging Pattern Analysis</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Real-World Range Estimation</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Fleet Management Intelligence</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Energy Cost Optimization</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Temperature vs. Range Correlation</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Supercharger Usage Heatmaps</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Battery Degradation Modeling</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Charging Pattern Analysis</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Real-World Range Estimation</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Fleet Management Intelligence</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Energy Cost Optimization</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Temperature vs. Range Correlation</span>
+      <span class="marquee-item"><span class="marquee-dot">●</span> Supercharger Usage Heatmaps</span>
+    </div>
+  </div>
 
-</nav>
+  <!-- FEATURES -->
+  <section id="features" class="features">
+    <div class="section-header reveal">
+      <div>
+        <div class="section-eyebrow">// What We Analyze</div>
+        <h2 class="section-title">Six Dimensions of<br><span class="muted">EV Intelligence</span></h2>
+      </div>
+    </div>
 
-</div>
+    <div class="feature-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon icon-cyan">🔋</div>
+        <div class="feature-title">Charge Cycle Profiling</div>
+        <p class="feature-desc">Track full and partial charge cycles across vehicle models. Identify optimal charging windows and understand how charging behavior affects long-term battery health and cell capacity retention.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-green">📍</div>
+        <div class="feature-title">Range Estimation & Reality</div>
+        <p class="feature-desc">Compare manufacturer-rated range against observed real-world figures across varying conditions — temperature, speed, terrain, and payload — to understand true vehicle performance envelopes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-orange">⚡</div>
+        <div class="feature-title">Charging Speed Analytics</div>
+        <p class="feature-desc">Visualize charge rate curves from Level 1, Level 2, and DC Fast Charging sessions. Discover how battery state-of-charge affects peak charging throughput and time-to-full metrics.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-cyan">🌡️</div>
+        <div class="feature-title">Thermal Impact Modeling</div>
+        <p class="feature-desc">Quantify how ambient temperature drives energy consumption and range loss. Cold and hot weather scenarios are plotted against baseline efficiency to surface hidden performance costs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-green">🚗</div>
+        <div class="feature-title">Fleet Efficiency Benchmarking</div>
+        <p class="feature-desc">Benchmark individual vehicles against fleet-wide averages. Pinpoint outliers, predict maintenance windows, and optimize deployment strategies using data-driven fleet intelligence.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-orange">💡</div>
+        <div class="feature-title">Energy Cost Intelligence</div>
+        <p class="feature-desc">Map energy consumption to real electricity pricing across geographies and time-of-use windows. Surface opportunities to reduce charging costs through behavioral and scheduling insights.</p>
+      </div>
+    </div>
+  </section>
 
-</header>
+  <div class="section-divider"></div>
 
-<main class="main">
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="dashboard-section">
+    <div class="dashboard-inner">
+      <div class="section-header reveal" style="max-width: 1400px; margin: 0 auto 2rem;">
+        <div>
+          <div class="section-eyebrow">// Interactive Tableau Dashboard</div>
+          <h2 class="section-title">Explore the Full<br><span class="muted">Analysis Suite</span></h2>
+        </div>
+      </div>
 
-<section id="home" class="hero section dark-background">
+      <div class="reveal">
+        <div class="dashboard-header">
+          <div class="dashboard-title">
+            <div class="logo-icon" style="width:40px;height:40px;">📊</div>
+            <div>
+              <div class="db-title-text">EV Charge & Range Analysis — Tableau Public</div>
+              <div class="db-subtitle">Interactive multi-view dashboard · Use filters to explore the data</div>
+            </div>
+          </div>
+          <div class="db-controls">
+            <div class="db-chip chip-live">
+              <div class="pulse-dot"></div>
+              Connected
+            </div>
+            <div class="db-chip chip-tableau">Tableau Public</div>
+          </div>
+        </div>
 
-<img src="assets/img/hero-bg.jpg" alt="Electric Vehicle Background">
+        <div class="tableau-wrapper">
+          <div class='tableauPlaceholder' id='viz1772984788914' style='position: relative; width: 100%;'>
+            <noscript>
+              <a href='#'>
+                <img alt='EV Charge and Range Analysis'
+                  src='https://public.tableau.com/static/images/XD/XDCFN39WZ/1_rss.png'
+                  style='border: none; width: 100%;' />
+              </a>
+            </noscript>
+            <object class='tableauViz' style='display:none;'>
+              <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+              <param name='embed_code_version' value='3' />
+              <param name='path' value='shared/XDCFN39WZ' />
+              <param name='toolbar' value='yes' />
+              <param name='static_image' value='https://public.tableau.com/static/images/XD/XDCFN39WZ/1.png' />
+              <param name='animate_transition' value='yes' />
+              <param name='display_static_image' value='yes' />
+              <param name='display_spinner' value='yes' />
+              <param name='display_overlay' value='yes' />
+              <param name='display_count' value='yes' />
+              <param name='language' value='en-US' />
+            </object>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<div class="container d-flex flex-column align-items-center text-center">
+  <!-- TEAM -->
+  <div class="section-divider"></div>
+  <section id="team" class="team-section">
+    <div class="team-inner">
 
-<h2>
-Electric Vehicle Charging and Range Analysis
-</h2>
+      <div class="reveal">
+        <div class="section-eyebrow">// The Builders</div>
+        <h2 class="section-title">Meet the <span class="muted">Team</span></h2>
+      </div>
 
-<p>
-Electric Vehicles (EVs) are rapidly transforming the transportation industry. Modern EV systems combine electrical propulsion, battery storage, sensors, software, and data analytics to create intelligent mobility solutions. This project analyzes EV charging patterns, battery performance, and vehicle efficiency using interactive Tableau dashboards. The goal is to provide insights that support energy planning, fleet management, and informed consumer decisions.
-</p>
+      <div class="reveal" style="margin-top:1.5rem;">
+        <div class="college-badge">
+          <span class="badge-icon">🎓</span>
+          <span><strong>KIET Deemed to be University</strong> &nbsp;·&nbsp; Ghaziabad, Uttar Pradesh</span>
+        </div>
+      </div>
 
-<div class="d-flex mt-4">
-<a href="#dashboard" class="btn-get-started">View Dashboard</a>
-</div>
+      <div class="team-grid reveal">
 
-</div>
+        <!-- Member 1 -->
+        <div class="team-card">
+          <div class="team-avatar avatar-1">RC</div>
+          <div class="member-name">Rupesh Rakesh<br>Chaurasia</div>
+          <div class="member-roll">202401100500148</div>
+          <div class="member-divider"></div>
+          <div class="member-info">
+            <div>
+              <div class="info-label">Branch</div>
+              <div class="info-value">Computer Science &amp; IT</div>
+            </div>
+            <div>
+              <div class="info-label">Section</div>
+              <div class="info-value">C</div>
+            </div>
+          </div>
+          <div class="member-tag">CSIT / C</div>
+        </div>
 
-</section>
+        <!-- Member 2 -->
+        <div class="team-card">
+          <div class="team-avatar avatar-2">SY</div>
+          <div class="member-name">Shefali<br>Yadav</div>
+          <div class="member-roll">202401100500169</div>
+          <div class="member-divider"></div>
+          <div class="member-info">
+            <div>
+              <div class="info-label">Branch</div>
+              <div class="info-value">Computer Science &amp; IT</div>
+            </div>
+            <div>
+              <div class="info-label">Section</div>
+              <div class="info-value">C</div>
+            </div>
+          </div>
+          <div class="member-tag">CSIT / C</div>
+        </div>
 
-<section id="dashboard" class="section">
+        <!-- Member 3 -->
+        <div class="team-card">
+          <div class="team-avatar avatar-3">SD</div>
+          <div class="member-name">Shikhar<br>Dixit</div>
+          <div class="member-roll">202401100500170</div>
+          <div class="member-divider"></div>
+          <div class="member-info">
+            <div>
+              <div class="info-label">Branch</div>
+              <div class="info-value">Computer Science &amp; IT</div>
+            </div>
+            <div>
+              <div class="info-label">Section</div>
+              <div class="info-value">C</div>
+            </div>
+          </div>
+          <div class="member-tag">CSIT / C</div>
+        </div>
 
-<div class="container">
+        <!-- Member 4 -->
+        <div class="team-card">
+          <div class="team-avatar avatar-4">VN</div>
+          <div class="member-name">Vishal<br>Nimoliya</div>
+          <div class="member-roll">202401100500210</div>
+          <div class="member-divider"></div>
+          <div class="member-info">
+            <div>
+              <div class="info-label">Branch</div>
+              <div class="info-value">Computer Science &amp; IT</div>
+            </div>
+            <div>
+              <div class="info-label">Section</div>
+              <div class="info-value">C</div>
+            </div>
+          </div>
+          <div class="member-tag">CSIT / C</div>
+        </div>
 
-<div class='tableauPlaceholder' id='viz1772984788914' style='position: relative'>
+      </div>
+    </div>
+  </section>
 
-<noscript>
-<a href='#'>
-<img alt='EV Charge and Range Analysis'
-src='https://public.tableau.com/static/images/XD/XDCFN39WZ/1_rss.png'
-style='border: none' />
-</a>
-</noscript>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">
+      <div class="logo-icon">⚡</div>
+      <div class="footer-text">
+        <strong style="font-family:'Syne',sans-serif;font-size:0.9rem;">EV Pulse</strong><br>
+        Visualization Tool for Electric Vehicle Charge & Range Analysis
+      </div>
+    </div>
+    <ul class="footer-links">
+      <li><a href="#home">Overview</a></li>
+      <li><a href="#features">Insights</a></li>
+      <li><a href="#dashboard">Dashboard</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+    <div style="font-size:0.72rem;color:var(--text-muted);">
+      Built with Tableau Public · Data Visualization Project
+    </div>
+  </footer>
 
-<object class='tableauViz' style='display:none;'>
+  <script type='text/javascript'>
+    // Tableau embed
+    var divElement = document.getElementById('viz1772984788914');
+    var vizElement = divElement.getElementsByTagName('object')[0];
+    if (divElement.offsetWidth > 800) {
+      vizElement.style.width = '1300px';
+      vizElement.style.height = '1627px';
+    } else if (divElement.offsetWidth > 500) {
+      vizElement.style.width = '1300px';
+      vizElement.style.height = '1627px';
+    } else {
+      vizElement.style.width = '100%';
+      vizElement.style.height = '3327px';
+    }
+    var scriptElement = document.createElement('script');
+    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+    vizElement.parentNode.insertBefore(scriptElement, vizElement);
 
-<param name='host_url' value='https://public.tableau.com/' />
-<param name='embed_code_version' value='3' />
-<param name='path' value='shared/XDCFN39WZ' />
-<param name='toolbar' value='yes' />
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    });
+    function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
 
-<param name='static_image'
-value='https://public.tableau.com/static/images/XD/XDCFN39WZ/1.png' />
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.style.width = '52px';
+        ring.style.height = '52px';
+        ring.style.opacity = '0.5';
+        cursor.style.transform += ' scale(0.5)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+        ring.style.opacity = '1';
+      });
+    });
 
-<param name='animate_transition' value='yes' />
-<param name='display_static_image' value='yes' />
-<param name='display_spinner' value='yes' />
-<param name='display_overlay' value='yes' />
-<param name='display_count' value='yes' />
-<param name='language' value='en-US' />
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
 
-</object>
-
-</div>
-
-</div>
-
-</section>
-
-</main>
-
-<script type='text/javascript'>
-
-var divElement = document.getElementById('viz1772984788914');
-var vizElement = divElement.getElementsByTagName('object')[0];
-
-if (divElement.offsetWidth > 800) {
-
-vizElement.style.width='1300px';
-vizElement.style.height='1627px';
-
-} else if (divElement.offsetWidth > 500) {
-
-vizElement.style.width='1300px';
-vizElement.style.height='1627px';
-
-} else {
-
-vizElement.style.width='100%';
-vizElement.style.height='3327px';
-
-}
-
-var scriptElement = document.createElement('script');
-
-scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-
-vizElement.parentNode.insertBefore(scriptElement, vizElement);
-
-</script>
-
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/main.js"></script>
-
+    // Active nav
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.classList.remove('active');
+        if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+      });
+    });
+  </script>
 </body>
 </html>
