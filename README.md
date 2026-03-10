@@ -90,7 +90,7 @@ The interactive Tableau dashboard contains multiple views and stories built from
 
 ## 👥 Team
 
-**Institution:** KIET Group of Institutions, Deemed to be University, Ghaziabad
+**Institution:** KIET Deemed to be University, Ghaziabad
 
 **Department:** Computer Science & Information Technology (CSIT) — Section C
 
