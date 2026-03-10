@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+<title>Electric Vehicle Analytics Dashboard</title>
+
+<meta name="description" content="EV Charging and Range Analysis Dashboard" />
+<meta name="keywords" content="electric vehicle, EV analytics, charging patterns, tableau dashboard" />
+
+<link href="assets/img/favicon.png" rel="icon" />
+
+<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+<link href="assets/css/main.css" rel="stylesheet" />
+
+</head>
+
+<body class="index-page">
+
+<header id="header" class="header d-flex align-items-center fixed-top">
+
+<div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+<a href="#home" class="logo d-flex align-items-center me-auto">
+<h1 class="sitename">EV Analytics</h1>
+</a>
+
+<nav id="navmenu" class="navmenu">
+
+<ul>
+<li><a href="#home" class="active">Overview</a></li>
+<li><a href="#dashboard">Dashboard</a></li>
+</ul>
+
+<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+
+</nav>
+
+</div>
+
+</header>
+
+<main class="main">
+
+<section id="home" class="hero section dark-background">
+
+<img src="assets/img/hero-bg.jpg" alt="Electric Vehicle Background">
+
+<div class="container d-flex flex-column align-items-center text-center">
+
+<h2>
+Electric Vehicle Charging and Range Analysis
+</h2>
+
+<p>
+Electric Vehicles (EVs) are rapidly transforming the transportation industry. Modern EV systems combine electrical propulsion, battery storage, sensors, software, and data analytics to create intelligent mobility solutions. This project analyzes EV charging patterns, battery performance, and vehicle efficiency using interactive Tableau dashboards. The goal is to provide insights that support energy planning, fleet management, and informed consumer decisions.
+</p>
+
+<div class="d-flex mt-4">
+<a href="#dashboard" class="btn-get-started">View Dashboard</a>
+</div>
+
+</div>
+
+</section>
+
+<section id="dashboard" class="section">
+
+<div class="container">
+
+<div class='tableauPlaceholder' id='viz1772984788914' style='position: relative'>
+
+<noscript>
+<a href='#'>
+<img alt='EV Charge and Range Analysis'
+src='https://public.tableau.com/static/images/XD/XDCFN39WZ/1_rss.png'
+style='border: none' />
+</a>
+</noscript>
+
+<object class='tableauViz' style='display:none;'>
+
+<param name='host_url' value='https://public.tableau.com/' />
+<param name='embed_code_version' value='3' />
+<param name='path' value='shared/XDCFN39WZ' />
+<param name='toolbar' value='yes' />
+
+<param name='static_image'
+value='https://public.tableau.com/static/images/XD/XDCFN39WZ/1.png' />
+
+<param name='animate_transition' value='yes' />
+<param name='display_static_image' value='yes' />
+<param name='display_spinner' value='yes' />
+<param name='display_overlay' value='yes' />
+<param name='display_count' value='yes' />
+<param name='language' value='en-US' />
+
+</object>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<script type='text/javascript'>
+
+var divElement = document.getElementById('viz1772984788914');
+var vizElement = divElement.getElementsByTagName('object')[0];
+
+if (divElement.offsetWidth > 800) {
+
+vizElement.style.width='1300px';
+vizElement.style.height='1627px';
+
+} else if (divElement.offsetWidth > 500) {
+
+vizElement.style.width='1300px';
+vizElement.style.height='1627px';
+
+} else {
+
+vizElement.style.width='100%';
+vizElement.style.height='3327px';
+
+}
+
+var scriptElement = document.createElement('script');
+
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+
+vizElement.parentNode.insertBefore(scriptElement, vizElement);
+
+</script>
+
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
